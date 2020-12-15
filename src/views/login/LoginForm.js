@@ -1,12 +1,13 @@
 import React, { Component, Fragment } from 'react';
 // ANTD
-import { Form, Input, Button, Row, Col, message } from 'antd';
+import { Form, Input, Button, Row, Col } from 'antd';
 import { UserOutlined, LockOutlined, BarcodeOutlined } from '@ant-design/icons';
 // 验证
 import { validate_password } from "../../utils/validate";
 // API
-import { Login, GetCode } from "../../api/account";
-
+import { Login } from "../../api/account";
+// 组件
+import Code from "../../components/code/index";
 class LoginForm extends Component{
     constructor(){
         super();
@@ -16,7 +17,6 @@ class LoginForm extends Component{
             code_button_text: "获取验证码",
             code_button_disabled: false
         };
-        // react没有数据双向绑定的概念，v-model这个Vue的
     }
     // 登录
     onFinish = (values) => { 
@@ -28,34 +28,6 @@ class LoginForm extends Component{
         })
         // console.log('Received values of form: ', values);
     };
-
-    // 获取验证码
-    getCode = () => {
-        if (!this.state.username) {
-            message.warning("用户名不能为空！",1);
-            return false;
-        }
-        this.setState({
-            code_button_loading: true,
-            code_button_text: "发送中"
-        })
-
-        const requestDate = {
-            username: this.state.username,
-            module: "login"
-        }
-        GetCode(requestDate).then(response => {
-            // 执行倒计时
-            this.countDown();
-        }).catch(error => {
-            this.setState({
-                code_button_loading: false,
-                code_button_text: "重新发送",
-                code_button_disabled: false
-            })
-        })
-    }
-
     /** input输入处理 */
     inputChange = (e) => {
         let value = e.target.value;
@@ -63,47 +35,13 @@ class LoginForm extends Component{
             username: value
         })
     }
-    /** 倒计时 */
-    countDown = () => {
-        // 定时器
-        let timer = null;
-        // 倒计时时间
-        let sec = 60;
-        // 修改状态
-        this.setState({
-            code_button_loading: false,
-            code_button_disabled: true,
-            code_button_text: `${sec}S`
-        })
-
-        timer = setInterval(() => {
-            sec--;
-            if (sec <= 0) {
-                this.setState({
-                    code_button_disabled: false,
-                    code_button_text: "重新获取"
-                })
-                clearInterval(timer);
-                return false;
-            }
-            this.setState({
-                code_button_text: `${sec}S`
-            })
-        },1000)
-
-        // setInterval \ clearInterval  不间断定时器
-        // setTimeout \ clearTimeout    只执行一次
-
-    }
-
     toggleForm = () => {
         // 调用父级的方法
         this.props.switchForm('register');
     }
 
     render(){
-        const { username, code_button_loading, code_button_text, code_button_disabled } = this.state;
-        // const _this = this;
+        const { username } = this.state;
         return (
             <Fragment>
                 <div className="form-header">
@@ -123,17 +61,6 @@ class LoginForm extends Component{
                                 [
                                     { required: true, message: '邮箱不能为空' },
                                     { type: 'email', message: '邮箱格式不正确'}
-                                    // ({ getFieldValue }) => ({
-                                    //     validator(rule, value) {
-                                    //         if (validate_email(value)) {
-                                    //             _this.setState({
-                                    //                 code_button_disabled: false
-                                    //             })
-                                    //             return Promise.resolve();
-                                    //         }
-                                    //         return Promise.reject('邮箱格式不正确!');
-                                    //     },
-                                    //   })
                                 ]
                             }
                         >
@@ -162,7 +89,7 @@ class LoginForm extends Component{
                                 <Input prefix={<BarcodeOutlined className="site-form-item-icon" />} placeholder="Code" />
                                 </Col>
                                 <Col span={9}>
-                                    <Button type="danger" disabled={code_button_disabled} loading={code_button_loading} block onClick={this.getCode}>{code_button_text}</Button>
+                                    <Code username={username} />
                                 </Col>
                             </Row>
                         </Form.Item>

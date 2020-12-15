@@ -2,12 +2,15 @@ import React, { Component, Fragment } from 'react';
 // ANTD
 import { Form, Input, Button, Row, Col } from 'antd';
 import { UserOutlined, LockOutlined, BarcodeOutlined  } from '@ant-design/icons';
-
+// 组件
+import Code from "../../components/code/index";
 class RegisterForm extends Component{
     constructor(){
         super();
-        this.state = {};
-        this.onFinish = this.onFinish(this);
+        this.state = {
+            username: ""
+        };
+        // this.onFinish = this.onFinish(this);
     }
 
     onFinish = values => {
@@ -20,6 +23,7 @@ class RegisterForm extends Component{
     }
 
     render(){
+        const { username } = this.state
         return (
             <Fragment>
                 <div className="form-header">
@@ -60,7 +64,7 @@ class RegisterForm extends Component{
                                 <Input prefix={<BarcodeOutlined className="site-form-item-icon" />} placeholder="Code" />
                                 </Col>
                                 <Col span={9}>
-                                    <Button type="danger" block>获取验证码</Button>
+                                    <Code username={username} />
                                 </Col>
                             </Row>
                         </Form.Item>
