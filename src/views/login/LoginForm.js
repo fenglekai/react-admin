@@ -30,10 +30,6 @@ class LoginForm extends Component{
 
     // 获取验证码
     getCode = () => {
-        this.setState({
-            code_button_loading: true,
-            code_button_text: "发送中"
-        })
         if (!this.state.username) {
             message.warning("用户名不能为空！",1);
             return false;
