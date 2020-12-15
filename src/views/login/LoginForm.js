@@ -13,7 +13,8 @@ class LoginForm extends Component{
         this.state = {
             username: "",
             code_button_loading: false,
-            code_button_text: "获取验证码"
+            code_button_text: "获取验证码",
+            code_button_disabled: false
         };
         // react没有数据双向绑定的概念，v-model这个Vue的
     }
@@ -34,6 +35,10 @@ class LoginForm extends Component{
             message.warning("用户名不能为空！",1);
             return false;
         }
+        this.setState({
+            code_button_loading: true,
+            code_button_text: "发送中"
+        })
 
         const requestDate = {
             username: this.state.username,
