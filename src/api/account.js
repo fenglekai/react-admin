@@ -11,3 +11,14 @@ export function Login(data){
         // params: data, //请求类型为get时
     })
 }
+
+/**
+ * 获取验证码
+ */
+export function GetCode(data){
+    return service.request({
+        url: "/getSms/",
+        method: "post",
+        data, //请求类型为post时
+    })
+}

@@ -11,7 +11,7 @@ class RegisterForm extends Component{
     }
 
     onFinish = values => {
-        console.log('Received values of form: ', values);
+        // console.log('Receiveds values of form: ', values);
     };
 
     toggleForm = () => {

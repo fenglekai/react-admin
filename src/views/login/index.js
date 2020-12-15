@@ -16,7 +16,7 @@ class Login extends Component{
         this.setState({
             formType: value
         })
-        console.log(value);
+        // console.log(value);
     }
 
     render(){

@@ -1,35 +1,108 @@
 import React, { Component, Fragment } from 'react';
 // ANTD
-import { Form, Input, Button, Row, Col } from 'antd';
-import { UserOutlined, LockOutlined, BarcodeOutlined  } from '@ant-design/icons';
+import { Form, Input, Button, Row, Col, message } from 'antd';
+import { UserOutlined, LockOutlined, BarcodeOutlined } from '@ant-design/icons';
 // 验证
 import { validate_password } from "../../utils/validate";
 // API
-import { Login } from "../../api/account";
+import { Login, GetCode } from "../../api/account";
 
 class LoginForm extends Component{
     constructor(){
         super();
-        this.state = {};
+        this.state = {
+            username: "",
+            code_button_loading: false,
+            code_button_text: "获取验证码"
+        };
+        // react没有数据双向绑定的概念，v-model这个Vue的
     }
-
-    onFinish = (values) => {
-        Login()
-        .then(response => { //Promise.resolves
+    // 登录
+    onFinish = (values) => { 
+        Login().then(response => { //Promise.resolves
             console.log(process.env.NODE_ENV)
             console.log(response)
         }).catch(error => { //Promise.reject
 
         })
-        console.log('Received values of form: ', values);
+        // console.log('Received values of form: ', values);
     };
 
+    // 获取验证码
+    getCode = () => {
+        this.setState({
+            code_button_loading: true,
+            code_button_text: "发送中"
+        })
+        if (!this.state.username) {
+            message.warning("用户名不能为空！",1);
+            return false;
+        }
+
+        const requestDate = {
+            username: this.state.username,
+            module: "login"
+        }
+        GetCode(requestDate).then(response => {
+            // 执行倒计时
+            this.countDown();
+        }).catch(error => {
+            this.setState({
+                code_button_loading: false,
+                code_button_text: "重新发送",
+                code_button_disabled: false
+            })
+        })
+    }
+
+    /** input输入处理 */
+    inputChange = (e) => {
+        let value = e.target.value;
+        this.setState({
+            username: value
+        })
+    }
+    /** 倒计时 */
+    countDown = () => {
+        // 定时器
+        let timer = null;
+        // 倒计时时间
+        let sec = 60;
+        // 修改状态
+        this.setState({
+            code_button_loading: false,
+            code_button_disabled: true,
+            code_button_text: `${sec}S`
+        })
+
+        timer = setInterval(() => {
+            sec--;
+            if (sec <= 0) {
+                this.setState({
+                    code_button_disabled: false,
+                    code_button_text: "重新获取"
+                })
+                clearInterval(timer);
+                return false;
+            }
+            this.setState({
+                code_button_text: `${sec}S`
+            })
+        },1000)
+
+        // setInterval \ clearInterval  不间断定时器
+        // setTimeout \ clearTimeout    只执行一次
+
+    }
+
     toggleForm = () => {
-        //调用父级的方法
+        // 调用父级的方法
         this.props.switchForm('register');
     }
 
     render(){
+        const { username, code_button_loading, code_button_text, code_button_disabled } = this.state;
+        // const _this = this;
         return (
             <Fragment>
                 <div className="form-header">
@@ -49,29 +122,27 @@ class LoginForm extends Component{
                                 [
                                     { required: true, message: '邮箱不能为空' },
                                     { type: 'email', message: '邮箱格式不正确'}
+                                    // ({ getFieldValue }) => ({
+                                    //     validator(rule, value) {
+                                    //         if (validate_email(value)) {
+                                    //             _this.setState({
+                                    //                 code_button_disabled: false
+                                    //             })
+                                    //             return Promise.resolve();
+                                    //         }
+                                    //         return Promise.reject('邮箱格式不正确!');
+                                    //     },
+                                    //   })
                                 ]
                             }
                         >
-                            <Input prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Email" />
+                            <Input value={username} onChange={this.inputChange} prefix={<UserOutlined className="site-form-item-icon" />} placeholder="Email" />
                         </Form.Item>
                         <Form.Item
                             name="password"
                             rules={
                                 [
                                     { required: true, message: '密码不能为空' },
-                                    // ({ getFieldValue }) => ({  //ES6解构
-                                    //     validator(rule, value) {
-                                    //         if (value.length < 6) {
-                                    //             // return Promise.resolve();
-                                    //             return Promise.reject('不能小于6位');
-                                    //         }else{
-                                    //             return Promise.resolve();
-                                    //         }
-                                    //         // return Promise.reject('The two passwords that you entered do not match!');
-                                    //     },
-                                    // }),
-                                    // { min: 6, message: '不能小于6位'},
-                                    // { max: 20, message: '不能大于20位'},
                                     { pattern: validate_password, message: '请输入大于6位小于20位的数字+字母'}
                                 ]
                             }>
@@ -90,7 +161,7 @@ class LoginForm extends Component{
                                 <Input prefix={<BarcodeOutlined className="site-form-item-icon" />} placeholder="Code" />
                                 </Col>
                                 <Col span={9}>
-                                    <Button type="danger" block>获取验证码</Button>
+                                    <Button type="danger" disabled={code_button_disabled} loading={code_button_loading} block onClick={this.getCode}>{code_button_text}</Button>
                                 </Col>
                             </Row>
                         </Form.Item>
