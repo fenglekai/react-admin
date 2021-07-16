@@ -11,6 +11,8 @@ import { Login } from "../../api/account";
 import Code from "../../components/code/index";
 // 加密
 import CrytoJs from "crypto-js"
+// 方法
+import { setToken } from "../../utils/session";
 class LoginForm extends Component{
     constructor(){
         super();
@@ -38,6 +40,9 @@ class LoginForm extends Component{
             this.setState({
                 loading: false
             })
+            // 存储token
+            const dataToken = response.data.data;
+            setToken(dataToken.token);
             // 路由跳转
             this.props.history.push('/index');
         }).catch(error => { //Promise.reject
