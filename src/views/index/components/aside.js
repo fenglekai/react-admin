@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 // asideMenu
-import AsideMenu from "../../../components/asideMenu/Index";
+import AsideMenu from "../../../components/asideMenu/index";
 class LayoutAside extends Component {
   constructor(props) {
     super(props);

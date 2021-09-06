@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 // antd
 import { Menu } from "antd";
 // icon
@@ -11,10 +11,37 @@ const { SubMenu } = Menu;
 class AsideMenu extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      selectedKeys: [],
+      openKeys: [],
+    };
   }
 
-  // 无级菜单处理
+  // 初始化
+  componentDidMount() {
+    const pathName = this.props.location.pathname;
+    const meunKey = pathName.split("/").slice(0, 3).join("/");
+    this.setState({
+      selectedKeys: [pathName],
+      openKeys: [meunKey],
+    });
+  }
+
+  // 菜单选择
+  selectMenu = ({ item, key, keyPath, domEvent }) => {
+    this.setState({
+      selectedKeys: [key],
+    });
+  };
+
+  // 展开菜单选择
+  openSubMenu = (openKeys) => {
+    this.setState({
+      openKeys: [...openKeys],
+    });
+  };
+
+  // 无子级菜单处理
   renderMenu = ({ title, key }) => {
     return (
       <Menu.Item key={key}>
@@ -40,13 +67,16 @@ class AsideMenu extends Component {
   };
 
   render() {
+    const { selectedKeys, openKeys } = this.state;
     return (
       <Fragment>
         <Menu
+          onClick={this.selectMenu}
+          onOpenChange={this.openSubMenu}
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={["1"]}
-          defaultOpenKeys={["sub1"]}
+          selectedKeys={selectedKeys}
+          openKeys={openKeys}
           style={{ height: "100%", borderRight: 0 }}
         >
           {Router &&
@@ -61,4 +91,4 @@ class AsideMenu extends Component {
   }
 }
 
-export default AsideMenu;
+export default withRouter(AsideMenu);
